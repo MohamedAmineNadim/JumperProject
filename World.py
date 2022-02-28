@@ -2,6 +2,8 @@ import pygame
 from pygame.locals import *
 
 
+
+
 class World():
 	#La classe qui permet l'affichage des blocs du monde et leur positionnement.
 	def __init__(self, data, sizeT):
@@ -32,6 +34,9 @@ class World():
 			column_counter = 0 #Compteur de colonnes
 			for tile in row :
 				#Block tile
+				if tile == -1:
+					animation = Animation(column_counter * sizeT, row_counter * sizeT)
+					bg_group.add(animation)
 				if tile == 1:
 					image = pygame.transform.scale(block_top,(sizeT,sizeT))
 					image_rect = image.get_rect()
@@ -129,6 +134,7 @@ class World():
 zombie_group = pygame.sprite.Group()
 fire_group = pygame.sprite.Group()
 portal_group = pygame.sprite.Group()
+bg_group = pygame.sprite.Group()
 
 class Personnage():
 	def __init__(self, x, y):
@@ -318,3 +324,22 @@ class Portal(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.x = x
 		self.rect.y = y
+
+class Animation(pygame.sprite.Sprite): 
+	def __init__(self, x, y):
+		pygame.sprite.Sprite.__init__(self)
+		self.animation = []
+		self.index = 0
+		for frame in range(0,7):
+			image = pygame.image.load(f"C:\\Users\\HP Victus\\Desktop\\GIFs\\GIF_Nature{frame}.png")
+			image= pygame.transform.scale(image,(800,650))
+			self.animation.append(image)
+		self.image = self.animation[self.index]
+		self.rect=self.image.get_rect()
+		self.rect.x = x
+		self.rect.y = y
+		
+		def disp(self,scn):
+			self.image = self.animation[self.index%7]
+			self.index+=1
+			scn.blit(self.image,self.rect)

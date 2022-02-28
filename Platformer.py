@@ -13,11 +13,17 @@ class Portal() : Permet de créer des instances de l'objet portail
 
 #Initialisation de l'écran (625px*625px) et du titre du jeu
 #Initialisation des images du fond d'écran du jeu
+from cgi import test
 import pygame
 from pygame.locals import *
 
-import World
+import World 
 from World import *
+
+#import animation
+#from animation import *
+
+test_img = Animation(0,25)
 
 pygame.init()
 
@@ -98,12 +104,24 @@ world_data = [
 #Déclarations d'instances
 new_world = World(world_data,taille_cad)
 new_perso = Personnage(25, long_ecran-75)
+new_img = Animation(0,25)
 ecran.blit(white,(0,0))
 ecran.blit(stopwatch, (100,0))
 
 run = True
+
 while run:
-	ecran.blit(bg_img,(25,25))
+	#ecran.blit(bg_img,(25,25))
+	
+	#ecran.blit(new_img.image, (0,25))
+
+	if (milliseconds % 10) == 0 and game_over != 0 :
+		new_img.index += 1
+		pass
+
+	new_img.image = new_img.animation[new_img.index%7]
+	ecran.blit(new_img.image,new_img.rect)
+		
 	portal_group.draw(ecran)
 	#dessin_cadrillage()
 	new_world.dessin(ecran)
@@ -139,6 +157,7 @@ while run:
 	timelabel = myfont.render("{}m:{}s".format(minutes, seconds), True, (0,0,0))
 	ecran.blit(timelabel,(130, 0))
 	pygame.display.update()
+
 
 final_time = (minutes, seconds)
 print("Final time : ", final_time[0], "m ", final_time[1], "s")
