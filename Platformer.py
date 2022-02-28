@@ -4,10 +4,11 @@
 #Un mode spécial débloqué à l'issu des 10 niveaux
 '''
 classes utilisées :
-class Univers() : Permet de créer une instance de l'univers de jeu
-class Joueur() : Permet de créer des instances de l'objet joueur
-class Ennemi() : Permet de créer des instances de l'objet ennemi
-class Portail() : Permet de créer des instances de l'objet portail
+class World() : Permet de créer une instance de l'univers de jeu
+class Personnage() : Permet de créer des instances de l'objet joueur
+class Zombie() : Permet de créer des instances de l'objet ennemi
+class Fire() : Permet de créer des instances de l'objet (obstacle) feu
+class Portal() : Permet de créer des instances de l'objet portail
 '''
 
 #Initialisation de l'écran (500px*500px) et du titre du jeu
