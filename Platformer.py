@@ -11,7 +11,7 @@ class Fire() : Permet de créer des instances de l'objet (obstacle) feu
 class Portal() : Permet de créer des instances de l'objet portail
 '''
 
-#Initialisation de l'écran (500px*500px) et du titre du jeu
+#Initialisation de l'écran (625px*625px) et du titre du jeu
 #Initialisation des images du fond d'écran du jeu
 import pygame
 from pygame.locals import *
@@ -138,7 +138,6 @@ while run:
 	milliseconds += clock.tick_busy_loop(65)
 	timelabel = myfont.render("{}m:{}s".format(minutes, seconds), True, (0,0,0))
 	ecran.blit(timelabel,(130, 0))
-	#ecran.blit(lblLives,(0,0))
 	pygame.display.update()
 
 final_time = (minutes, seconds)
