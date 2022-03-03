@@ -36,8 +36,9 @@ game_over = 3
 
 ecran = pygame.display.set_mode((long_ecran,larg_ecran))
 pygame.display.set_caption("Jumper !")
-
 bg_img = pygame.image.load("background.png")
+start_img = pygame.image.load("Spritesheets/start.png")
+exit_img = pygame.image.load("Spritesheets/exit.png")
 #load life images here, 3xheart or heart heart heart
 
 
@@ -87,10 +88,10 @@ world_data = [
 [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
 [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,2],
 [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,5,0,0,0,0,2],
-[4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,6,0,0,0,0,2],
-[4,0,0,0,0,0,0,0,0,0,0,0,0,0,13,0,0,0,0,0,0,0,0,0,2],
-[4,0,0,0,0,0,0,0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
-[4,0,0,0,0,0,0,0,7,3,6,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
+[4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,0,0,7,6,0,0,0,0,2],
+[4,0,0,0,0,0,0,0,0,0,0,0,0,13,0,0,0,0,0,0,0,0,0,0,2],
+[4,0,0,0,0,0,0,14,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
+[4,0,0,0,0,0,0,7,3,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
 [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
 [4,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,2],
 [4,0,0,0,0,0,0,0,0,0,0,0,0,8,1,1,5,0,0,0,0,0,0,0,2],
@@ -105,27 +106,41 @@ world_data = [
 new_world = World(world_data,taille_cad)
 new_perso = Personnage(25, long_ecran-75)
 new_img = Animation(0,25)
+
+#Boutons
+start_button = Button(larg_ecran//2 - 100, long_ecran//2 + 80, start_img)
+exit_button = Button(larg_ecran//2 , long_ecran//2 + 80, exit_img)
+
 ecran.blit(white,(0,0))
 ecran.blit(stopwatch, (100,0))
 
+
+
+
 run = True
-
 while run:
-	#ecran.blit(bg_img,(25,25))
-	
-	#ecran.blit(new_img.image, (0,25))
-
-	if (milliseconds % 10) == 0 and game_over != 0 :
+	if (milliseconds % 2) == 0 and game_over != 0 :
 		new_img.index += 1
 		pass
 
 	new_img.image = new_img.animation[new_img.index%7]
-	ecran.blit(new_img.image,new_img.rect)
+	ecran.blit(new_img.image, new_img.rect)
 		
 	portal_group.draw(ecran)
 	#dessin_cadrillage()
 	new_world.dessin(ecran)
 	game_over = new_perso.dessin_Joueur(ecran,new_world, game_over)
+
+	#Si le joueur meurt, afficher les boutons
+	if game_over == 0:
+		exit_button.dessin(ecran)
+		if start_button.dessin(ecran):
+			#Reset la partie
+			new_perso.Reset(25, long_ecran-75)
+			milliseconds = 0
+			seconds = 0
+			ecran.blit(cover, (130,0))
+			game_over = 3
 	
 	zombie_group.draw(ecran)
 	if game_over != 0:

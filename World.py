@@ -138,34 +138,7 @@ bg_group = pygame.sprite.Group()
 
 class Personnage():
 	def __init__(self, x, y):
-		#On initialise deux listes, un compteur d'index et un compteur pour déterminer la vitesse de l'animation
-		#Listes contenant les images servant à l'animation selon la direction droite ou gauche
-		self.animation_right = [] 
-		self.animation_left = []
-		self.index = 0
-		self.cpt = 0
-
-		#On ajoute les images à  la liste pour faire l'animation
-		for i in range(1,3):
-			joueur_img = pygame.image.load(f'./Spritesheets/character{i}.png')
-			joueur_img = pygame.transform.scale(joueur_img,(35,45))
-			self.animation_right.append(joueur_img)
-			joueur_img = pygame.transform.flip(joueur_img, True, False)
-			self.animation_left.append(joueur_img)
-		dead = pygame.image.load('./Spritesheets/dead_character.png')
-		dead = pygame.transform.scale(dead, (40,50))
-		self.dead = dead
-
-		#Suite de définitions d'attributs pour la classe image
-		self.image = self.animation_right[self.index]
-		self.rect = self.image.get_rect()
-		self.rect.x = x
-		self.rect.y = y
-		self.width = self.image.get_width()-5
-		self.height = self.image.get_height()-5
-		self.veloc_y = 0
-		self.saut = False
-		self.direction = 0
+		self.Reset(x,y)
 
 	def dessin_Joueur(self,ecran, world, game_over):
 		#Cette fonction permet de définir les contrôles pour le personnage ainsi que son affichage.
@@ -185,10 +158,10 @@ class Personnage():
 				dx += 3
 				self.cpt += 1
 				self.direction = 1
-			if touche[pygame.K_SPACE] and self.saut == False:
-				self.veloc_y -= 25
+			if touche[pygame.K_SPACE] and self.saut == False and self.in_air == False:
+				self.veloc_y -= 20
 				self.saut = True
-			if touche[pygame.K_SPACE] == False and self.veloc_y >= 11:
+			if touche[pygame.K_SPACE] == False:
 				self.saut = False
 
 			if touche[pygame.K_RIGHT] == False and touche[pygame.K_LEFT] == False:
@@ -210,11 +183,12 @@ class Personnage():
 
 			#Gravité
 			self.veloc_y += 1
-			if self.veloc_y > 11:
-				self.veloc_y = 11
+			if self.veloc_y > 6:
+				self.veloc_y = 6
 			dy += self.veloc_y
 
 			#Vérification de collisions avec les blocs
+			self.in_air = True
 			for tile in world.tile_list:
 				#Collisions suivant l'axe x
 				if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
@@ -229,6 +203,7 @@ class Personnage():
 					elif self.veloc_y >= 0 :
 						#chute
 						dy = tile[1].top - self.rect.bottom
+						self.in_air = False
 
 			#Vérification de collisions avec les ennemis
 			if pygame.sprite.spritecollide(self, zombie_group, False):
@@ -257,6 +232,37 @@ class Personnage():
 
 		ecran.blit(self.image, self.rect)
 		return game_over
+
+	def Reset(self, x, y):
+		#On initialise deux listes, un compteur d'index et un compteur pour déterminer la vitesse de l'animation
+		#Listes contenant les images servant à l'animation selon la direction droite ou gauche
+		self.animation_right = [] 
+		self.animation_left = []
+		self.index = 0
+		self.cpt = 0
+
+		#On ajoute les images à  la liste pour faire l'animation
+		for i in range(1,3):
+			joueur_img = pygame.image.load(f'./Spritesheets/character{i}.png')
+			joueur_img = pygame.transform.scale(joueur_img,(35,45))
+			self.animation_right.append(joueur_img)
+			joueur_img = pygame.transform.flip(joueur_img, True, False)
+			self.animation_left.append(joueur_img)
+		dead = pygame.image.load('./Spritesheets/dead_character.png')
+		dead = pygame.transform.scale(dead, (40,50))
+		self.dead = dead
+
+		#Suite de définitions d'attributs pour la classe image
+		self.image = self.animation_right[self.index]
+		self.rect = self.image.get_rect()
+		self.rect.x = x
+		self.rect.y = y
+		self.width = self.image.get_width()-5
+		self.height = self.image.get_height()-5
+		self.veloc_y = 0
+		self.saut = False
+		self.direction = 0
+		self.in_air = True
 
 
 
@@ -339,7 +345,29 @@ class Animation(pygame.sprite.Sprite):
 		self.rect.x = x
 		self.rect.y = y
 		
-		def disp(self,scn):
-			self.image = self.animation[self.index%7]
-			self.index+=1
-			scn.blit(self.image,self.rect)
+class Button():
+	def __init__(self, x, y, image):
+		image = pygame.transform.scale(image, (70,30))
+		self.image = image
+		self.rect = self.image.get_rect()
+		self.rect.x = x
+		self.rect.y = y
+		self.clicked = False
+
+	def dessin(self, ecran):
+		#fonctionnalités du bouton même
+		action = False
+
+		pos = pygame.mouse.get_pos()
+		if self.rect.collidepoint(pos):
+			if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
+				action = True
+				self.clicked = True
+		
+		if pygame.mouse.get_pressed()[0] == 0:
+			self.clicked = False
+
+		#dessin du bouton
+		ecran.blit(self.image, self.rect)
+		
+		return action
