@@ -133,7 +133,6 @@ while run:
 
 	#Si le joueur meurt, afficher les boutons
 	if game_over == 0:
-		exit_button.dessin(ecran)
 		if start_button.dessin(ecran):
 			#Reset la partie
 			new_perso.Reset(25, long_ecran-75)
@@ -141,6 +140,8 @@ while run:
 			seconds = 0
 			ecran.blit(cover, (130,0))
 			game_over = 3
+		elif exit_button.dessin(ecran):
+			run = False
 	
 	zombie_group.draw(ecran)
 	if game_over != 0:
