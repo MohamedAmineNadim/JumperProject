@@ -1,11 +1,24 @@
 import pygame
 from pygame.locals import *
+from pygame import mixer
 
+pygame.mixer.pre_init(44100, -16, 2, 512)
+mixer.init()
+##Load sounds
+jump_fx = pygame.mixer.Sound('./Sounds/jump.mp3')
+jump_fx.set_volume(0.5)
 
+win_fx = pygame.mixer.Sound('./Sounds/win.mp3')
+win_fx.set_volume(0.5)
 
+lose_fx = pygame.mixer.Sound('./Sounds/lose.mp3')
+lose_fx.set_volume(0.5)
 
 class World():
-	#La classe qui permet l'affichage des blocs du monde et leur positionnement.
+	##############################################################################
+	##Classe qui crée des instances du monde du jeu, des blocs et leur positions##
+	##############################################################################
+
 	def __init__(self, data, sizeT):
 		#Fonction qui initialise le monde.
 
@@ -100,15 +113,15 @@ class World():
 					image_rect.y = row_counter*sizeT
 					tile = (image, image_rect)
 					self.tile_list.append(tile)
-				#Zombie tile
+				#Zombie
 				if tile == 10:
 					zombie = Zombie(column_counter * sizeT, row_counter * sizeT-20)
 					zombie_group.add(zombie)
-				#Portal tile
+				#Portal
 				if tile == 12:
 					portal = Portal(column_counter * sizeT-25, row_counter * sizeT-25)
 					portal_group.add(portal)
-				#Full block tile
+				#Full block
 				if tile == 13:
 					image = pygame.transform.scale(block_full,(sizeT,sizeT))
 					image_rect = image.get_rect()
@@ -116,7 +129,7 @@ class World():
 					image_rect.y = row_counter*sizeT
 					tile = (image, image_rect)
 					self.tile_list.append(tile)
-				#Fire tile
+				#Fire
 				if tile == 14:
 					fire = Fire(column_counter * sizeT, row_counter * sizeT)
 					fire_group.add(fire)
@@ -125,18 +138,19 @@ class World():
 
 
 	def dessin(self,ecran):
-		#Fonction qui fait l'affichage même des éléments du monde
+		#Fonction qui gère l'affichage des éléments du monde
 		for tile in self.tile_list:
 			ecran.blit(tile[0],tile[1])
 			#pygame.draw.rect(ecran,(255,255,255), tile[1],2) #Cadrillage des blocs pour tester les collisions
 
 
-zombie_group = pygame.sprite.Group()
-fire_group = pygame.sprite.Group()
-portal_group = pygame.sprite.Group()
-bg_group = pygame.sprite.Group()
+
 
 class Personnage():
+	###########################################
+	##Classe qui crée des instances du joueur##
+	###########################################
+
 	def __init__(self, x, y):
 		self.Reset(x,y)
 
@@ -147,7 +161,7 @@ class Personnage():
 		dx = 0
 		dy = 0
 		animation_cooldown = 6
-		if game_over != 0:
+		if game_over != 0 and game_over != 10:
 			#Commandes au clavier du jeu
 			touche = pygame.key.get_pressed()
 			if touche[pygame.K_LEFT]:
@@ -159,6 +173,7 @@ class Personnage():
 				self.cpt += 1
 				self.direction = 1
 			if touche[pygame.K_SPACE] and self.saut == False and self.in_air == False:
+				jump_fx.play()
 				self.veloc_y -= 20
 				self.saut = True
 			if touche[pygame.K_SPACE] == False:
@@ -181,13 +196,18 @@ class Personnage():
 				if self.direction == -1:
 					self.image = self.animation_left[self.index%2]
 
-			#Gravité
+			######################
+			##Gestion de gravité##
+			######################
 			self.veloc_y += 1
 			if self.veloc_y > 6:
 				self.veloc_y = 6
 			dy += self.veloc_y
 
-			#Vérification de collisions avec les blocs
+			#############################################
+			##Vérification de collisions avec les blocs##
+			#############################################
+			
 			self.in_air = True
 			for tile in world.tile_list:
 				#Collisions suivant l'axe x
@@ -205,30 +225,42 @@ class Personnage():
 						dy = tile[1].top - self.rect.bottom
 						self.in_air = False
 
-			#Vérification de collisions avec les ennemis
+			###############################################
+			##Vérification de collisions avec les ennemis##
+			###############################################
+
 			if pygame.sprite.spritecollide(self, zombie_group, False):
 				game_over -= 1
 				if game_over >= 1:
 					self.rect.x = 50
 					self.rect.y = 500
 
-			#Vérification de collisions avec le feu
+			##########################################
+			##Vérification de collisions avec le feu##
+			##########################################
+			
 			elif pygame.sprite.spritecollide(self, fire_group, False):
 				game_over -= 1
 				if game_over >= 1:
 					self.rect.x = 50
 					self.rect.y = 500
-			
+			elif pygame.sprite.spritecollide(self, portal_group, False):
+				game_over = 10
+
 			#Ajustement de position suivant les collisions (non fatales)
 			self.rect.x += dx
 			self.rect.y += dy
 			ecran.blit(self.image, self.rect)
 			return game_over
 
+		#Affichage du fantôme (joueur mort)
 		elif game_over == 0:
 			self.image = self.dead
 			if self.rect.y > 50:
 				self.rect.y -= 5
+
+		elif game_over == 10:
+			win_fx.play(-1, 0.0, 500)
 
 		ecran.blit(self.image, self.rect)
 		return game_over
@@ -267,6 +299,10 @@ class Personnage():
 
 
 class Zombie(pygame.sprite.Sprite):
+	############################################
+	##Classe qui crée des instances de zombies##
+	############################################
+
 	def __init__(self,x,y):
 		#Initialisation des listes contenant les animations
 		pygame.sprite.Sprite.__init__(self)
@@ -312,6 +348,10 @@ class Zombie(pygame.sprite.Sprite):
 
 
 class Fire(pygame.sprite.Sprite):
+	########################################
+	##Classe qui crée des instances de feu##
+	########################################
+
 	def __init__(self, x, y):
 		pygame.sprite.Sprite.__init__(self)
 		img = pygame.image.load('./Spritesheets/fire.png')
@@ -323,6 +363,10 @@ class Fire(pygame.sprite.Sprite):
 
 
 class Portal(pygame.sprite.Sprite):
+	############################################
+	##Classe qui crée des instances de portail##
+	############################################
+
 	def __init__(self, x, y):
 		pygame.sprite.Sprite.__init__(self)
 		img =  pygame.image.load('./Spritesheets/portal.png')
@@ -331,7 +375,11 @@ class Portal(pygame.sprite.Sprite):
 		self.rect.x = x
 		self.rect.y = y
 
-class Animation(pygame.sprite.Sprite): 
+class Animation(pygame.sprite.Sprite):
+	#################################################
+	##Classe qui gère l'animation de l'arrière plan##
+	#################################################
+
 	def __init__(self, x, y):
 		pygame.sprite.Sprite.__init__(self)
 		self.animation = []
@@ -346,6 +394,10 @@ class Animation(pygame.sprite.Sprite):
 		self.rect.y = y
 		
 class Button():
+	###########################################
+	##Classe qui gère les instances de bouton##
+	###########################################
+
 	def __init__(self, x, y, image):
 		image = pygame.transform.scale(image, (70,30))
 		self.image = image
@@ -371,3 +423,13 @@ class Button():
 		ecran.blit(self.image, self.rect)
 		
 		return action
+
+
+#################
+##Sprite groups##
+#################
+zombie_group = pygame.sprite.Group()
+fire_group = pygame.sprite.Group()
+portal_group = pygame.sprite.Group()
+bg_group = pygame.sprite.Group()
+portal_group = pygame.sprite.Group()
