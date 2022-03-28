@@ -6,13 +6,16 @@ pygame.mixer.pre_init(44100, -16, 2, 512)
 mixer.init()
 ##Load sounds
 jump_fx = pygame.mixer.Sound('./Sounds/jump.mp3')
-jump_fx.set_volume(0.5)
+jump_fx.set_volume(0.3)
 
 win_fx = pygame.mixer.Sound('./Sounds/win.mp3')
-win_fx.set_volume(0.5)
+win_fx.set_volume(0.3)
 
 lose_fx = pygame.mixer.Sound('./Sounds/lose.mp3')
-lose_fx.set_volume(0.5)
+lose_fx.set_volume(0.3)
+
+aurevoir_fx = pygame.mixer.Sound('./Sounds/aurevoir_henri.wav')
+aurevoir_fx.set_volume(0.3)
 
 class World():
 	##############################################################################

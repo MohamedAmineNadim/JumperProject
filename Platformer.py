@@ -56,6 +56,12 @@ milliseconds = 0
 cover = pygame.surface.Surface((503,503)).convert()
 cover.fill((220,220,220))
 
+border_hor = pygame.surface.Surface((503,5)).convert()
+border_hor.fill((100,100,150))
+
+border_ver = pygame.surface.Surface((5,503)).convert()
+border_ver.fill((100,100,150))
+
 white = pygame.surface.Surface((625,25)).convert()
 white.fill((255, 255, 255))
 
@@ -71,7 +77,6 @@ stopwatch = pygame.transform.scale(stopwatch, (taille_cad, taille_cad))
 myfont = pygame.font.SysFont("calibri", 20, True)
 msgFont = pygame.font.SysFont("calibri", 30, True)
 
-myCol = (103, 227, 184)
 msgCol = (3, 162, 160)
 
 bg = pygame.surface.Surface((625,625)).convert()
@@ -111,6 +116,9 @@ def reset_level(level):
 
 	world_data = levels_list[level]
 	new_world = World(world_data, taille_cad)
+
+	lose_fx.stop()
+	win_fx.stop()
 	return new_world
 
 def message(txt, font, txt_col, x, y):
@@ -142,12 +150,15 @@ while run:
 		final_time = (minutes, seconds, milliseconds)
 		final_time = "Votre temps : " + str(final_time[0]) + "m " + str(final_time[1]) + "s !"
 		if game_over == 0:
-			pygame.mixer.music.pause()
 			lose_fx.play(-1, 0, 500)
 			ecran.blit(cover, (60,60))
-			message(final_time, myfont, myCol, 210, 500)
+			ecran.blit(border_hor, (60,60))
+			ecran.blit(border_hor, (60,563))
+			ecran.blit(border_ver, (60,60))
+			ecran.blit(border_ver, (563,60))
+			message(final_time, myfont, msgCol, 210, 500)
 			message("GAME OVER !", msgFont, msgCol, 210, 200)
-			message("Cliquez sur START pour recommencer", myfont, msgCol, 130, 460)
+			message("Cliquez sur START pour recommencer", myfont, msgCol, 150, 460)
 			if start_button.dessin(ecran):
 				#Reset la partie
 				level = 0
@@ -216,10 +227,15 @@ while run:
 				game_over = lives
 			else:
 				#Restart game
+				win_fx.play()
 				ecran.blit(cover, (60,60))
-				message(final_time, myfont, myCol, 210, 500)
-				message("Vous avez battu le jeu !", msgFont, msgCol, 130, 300)
-				message("Cliquez sur START pour recommencer", myfont, msgCol, 130, 460)
+				ecran.blit(border_hor, (60,60))
+				ecran.blit(border_hor, (60,563))
+				ecran.blit(border_ver, (60,60))
+				ecran.blit(border_ver, (563,60))
+				message(final_time, myfont, msgCol, 210, 500)
+				message("Vous avez battu le jeu !", msgFont, msgCol, 150, 300)
+				message("Cliquez sur START pour recommencer", myfont, msgCol, 150, 460)
 				if restart_button.dessin(ecran):
 					level = 0
 					world_data = []
@@ -233,9 +249,5 @@ while run:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			run = False
-
-
-
-
 
 pygame.quit()
